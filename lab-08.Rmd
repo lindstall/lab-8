@@ -1,7 +1,7 @@
 ---
 title: "Lab 08 - University of Edinburgh Art Collection"
-author: "Insert your name here"
-date: "Insert date here"
+author: "Lindsay Stall"
+date: "3/16/2023"
 output: github_document
 ---
 
@@ -10,31 +10,72 @@ output: github_document
 ```{r load-packages, message = FALSE}
 library(tidyverse) 
 library(skimr)
+library(robotstxt)
 ```
 
-```{r load-data, message = FALSE, eval = FALSE}
-# Remove eval = FALSE or set it to TRUE once data is ready to be loaded
-uoe_art <- read_csv("data/uoe-art.csv")
+```{r}
+library(usethis)
+use_git_config(user.name = "Lindsay Stall", 
+               user.email = "stallm21@wfu.edu")
 ```
+
+```{r}
+paths_allowed("https://collections.ed.ac.uk/art)")
+```
+
+```{r}
+uoe.art <- read_csv("data/uoe-art.csv")
+```
+
 
 ### Exercise 9
 
 ```{r separate-title-date, error = TRUE}
-uoe_art <- uoe_art %>%
+uoe.art <- uoe.art %>%
   separate(title, into = c("title", "date"), sep = "\\(") %>%
   mutate(year = str_remove(date, "\\)") %>% as.numeric()) %>%
-  select(title, artist, year, ___)
+  select(title, artist, year, link)
 ```
 
 ### Exercise 10
 
-Remove this text, and add your answer for Exercise 10 here.
-Add code chunks as needed.
-Don't forget to label your code chunk.
-Do not use spaces in code chunk labels.
+```{r}
+skim(uoe.art)
+```
+114 have artist missing; 1368 has year missing
 
-### Exercise 11
+```{r}
+ggplot(data = uoe.art, aes(x = year)) + geom_histogram(binwidth = 100)
+```
 
-...
 
-Add exercise headings as needed.
+```{r}
+uoe.art <- uoe.art %>%
+  mutate(
+    year2 = if_else(year == 2, 1964, year)
+  )
+```
+
+
+```{r}
+ggplot(data = uoe.art, aes(x = year2)) + geom_histogram(binwidth = 10)
+
+```
+
+
+```{r}
+uoe.artist <- uoe.art %>%
+  filter(artist == "Emma Gillies")
+ggplot(data = uoe.artist, aes(x = artist)) + geom_bar()
+```
+Unknown and Emma Gillies had the most pieces of art.
+
+
+```{r}
+uoe.art %>% 
+  filter(
+    str_detect(title , "child") |
+      str_detect(title , "Child")
+  )
+```
+there were 10 pieces of art with the word child in it
